@@ -1,0 +1,17 @@
+Effect info:
+ curveCount: 0
+ materialCount: 0
+ modelCount: 1
+  model0: mqo/ball2.efkmodel
+ textureCount: 5
+  textureCountColor:5
+   model0: Texture/aura3_type2.png
+   model1: Texture/Burst01.png
+   model2: Texture/glow.png
+   model3: Texture/magma.png
+   model4: Texture/Particle01.png
+  textureCountNormal:0
+  textureCountDistortion:0
+ isLoaded: true
+ minTerm: 2147483647
+ maxTerm: 2147483647
