@@ -78,12 +78,15 @@ public class Effek implements Closeable {
 		markFree(emitter);
 		emitter.emitter.stop();
 		AtomicReference<LoaderIndependentIdentifier> idMove = new AtomicReference<>();
-		effectsPresent.forEach((id, emitter1)->{
+		effectsFree.forEach((id, emitter1)->{
 			if (idMove.get() != null) return;
 			if (emitter.equals(emitter1)) {
 				idMove.set(id);
 			}
 		});
+		emitter.setPaused(true);
+		emitter.setVisible(false);
+		emitter.setPlayProgress(1f);
 		effectsFree.remove(idMove.get());
 	}
 }

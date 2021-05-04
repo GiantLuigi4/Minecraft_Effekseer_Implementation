@@ -1,6 +1,7 @@
 package com.tfc.minecraft_effekseer_implementation;
 
 import com.google.gson.internal.$Gson$Types;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.tfc.effekseer4j.Effekseer;
@@ -20,11 +21,13 @@ import net.minecraft.client.renderer.RenderState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.settings.GraphicsFanciness;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -32,6 +35,8 @@ import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
@@ -52,10 +57,16 @@ public class MEI {
 	}
 	
 	public MEI() {
+		Networking.init();
+		MinecraftForge.EVENT_BUS.addListener(this::onServerStartup);
 		if (!FMLEnvironment.dist.isClient()) return;
 		MinecraftForge.EVENT_BUS.addListener(this::renderWorldLast);
 		IReloadableResourceManager manager = (IReloadableResourceManager) Minecraft.getInstance().getResourceManager();
 		manager.addReloadListener(EffekseerMCAssetLoader.INSTANCE);
+	}
+	
+	private void onServerStartup(FMLServerAboutToStartEvent event) {
+		event.getServer().getCommandManager().getDispatcher().register(Command.construct());
 	}
 	
 	private static long lastFrame = -1;
@@ -87,7 +98,6 @@ public class MEI {
 				-Minecraft.getInstance().getRenderManager().info.getProjectedView().getY(),
 				-Minecraft.getInstance().getRenderManager().info.getProjectedView().getZ()
 		);
-		Minecraft.getInstance().gameRenderer.applyBobbing(event.getMatrixStack(), Minecraft.getInstance().getRenderPartialTicks());
 		event.getMatrixStack().translate(0.5f, 0.5f, 0.5f);
 		matrix = event.getMatrixStack().getLast().getMatrix();
 		float[][] cameraMatrix = matrixToArray(matrix);

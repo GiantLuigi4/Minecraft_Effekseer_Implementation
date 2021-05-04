@@ -7,12 +7,10 @@ import com.tfc.effekseer4j.Effekseer;
 import com.tfc.effekseer4j.EffekseerEffect;
 import com.tfc.effekseer4j.enums.DeviceType;
 import com.tfc.effekseer4j.enums.TextureType;
-import com.tfc.minecraft_effekseer_implementation.MEI;
 import com.tfc.minecraft_effekseer_implementation.common.Effek;
 import com.tfc.minecraft_effekseer_implementation.common.Effeks;
 import com.tfc.minecraft_effekseer_implementation.common.LoaderIndependentIdentifier;
 import com.tfc.minecraft_effekseer_implementation.common.api.EffekEmitter;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.client.resources.ReloadListener;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResource;
@@ -20,7 +18,6 @@ import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Collection;
 
@@ -63,21 +60,23 @@ public class EffekseerMCAssetLoader extends ReloadListener<Effek> {
 				stream = resourceManagerIn.getResource(location1).getInputStream();
 				effect.load(stream, stream.available(), 1);
 				{ // textures
-					JsonObject texturesObject = object.getAsJsonObject("textures");
+					JsonObject texturesObject = object.has("textures") ? object.getAsJsonObject("textures") : new JsonObject();
 					for (TextureType value : TextureType.values()) {
 						for (int index = 0; index < effect.textureCount(value); index++) {
 							String texturePath = effect.getTexturePath(index, value);
-							if (texturesObject.has(texturePath)) texturePath = texturesObject.get(texturePath).getAsJsonPrimitive().getAsString();
+							if (texturesObject.has(texturePath))
+								texturePath = texturesObject.get(texturePath).getAsJsonPrimitive().getAsString();
 							LoaderIndependentIdentifier textureLocation = new LoaderIndependentIdentifier(texturePath);
 							path = textureLocation.path();
 							texturePath = namespace + ":effeks/" + path;
+							System.out.println(texturePath);
 							stream = resourceManagerIn.getResource(new ResourceLocation(texturePath)).getInputStream();
 							effect.loadTexture(stream, stream.available(), index, value);
 						}
 					}
 				}
 				{ // models
-					JsonObject modelsObj = object.getAsJsonObject("models");
+					JsonObject modelsObj = object.has("models") ? object.getAsJsonObject("models") : new JsonObject();
 					for (int index = 0; index < effect.modelCount(); index++) {
 						String texturePath = effect.getModelPath(index);
 						if (modelsObj.has(texturePath)) texturePath = modelsObj.get(texturePath).getAsJsonPrimitive().getAsString();
@@ -89,7 +88,7 @@ public class EffekseerMCAssetLoader extends ReloadListener<Effek> {
 					}
 				}
 				{ // curves
-					JsonObject modelsObj = object.getAsJsonObject("curves");
+					JsonObject modelsObj = object.has("curves") ? object.getAsJsonObject("curves") : new JsonObject();
 					for (int index = 0; index < effect.curveCount(); index++) {
 						String texturePath = effect.getCurvePath(index);
 						if (modelsObj.has(texturePath)) texturePath = modelsObj.get(texturePath).getAsJsonPrimitive().getAsString();
@@ -101,7 +100,7 @@ public class EffekseerMCAssetLoader extends ReloadListener<Effek> {
 					}
 				}
 				{ // materials
-					JsonObject modelsObj = object.getAsJsonObject("materials");
+					JsonObject modelsObj = object.has("materials") ? object.getAsJsonObject("materials") : new JsonObject();
 					for (int index = 0; index < effect.materialCount(); index++) {
 						String texturePath = effect.getMaterialPath(index);
 						if (modelsObj.has(texturePath)) texturePath = modelsObj.get(texturePath).getAsJsonPrimitive().getAsString();
@@ -123,7 +122,11 @@ public class EffekseerMCAssetLoader extends ReloadListener<Effek> {
 				);
 				mapHandler.put(location.toString(), effek);
 			} catch (Throwable err) {
-				err.printStackTrace();
+				StringBuilder ex = new StringBuilder(err.getLocalizedMessage()).append("\n");
+				for (StackTraceElement element : err.getStackTrace()) {
+					ex.append(element.toString()).append("\n");
+				}
+				System.out.print(ex);
 			}
 		}
 	}
