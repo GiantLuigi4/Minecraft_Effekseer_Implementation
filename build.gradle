@@ -1,3 +1,7 @@
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
+
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
@@ -138,3 +142,73 @@ jar {
 }
 
 jar.finalizedBy('reobfJar')
+
+task uniformJar() {
+    doLast {
+        String name = "/libs/" + archivesBaseName
+        if (version != "null") {
+            name += "-" + version;
+        }
+        ArrayList<String> entries = new ArrayList<>()
+        File tempMergingDir = new File(name + "-Uniform.jar-merging")
+        print(project.buildDir.path + name + ".jar")
+        clone(new File("build/libs/Minecraft_Effekseer_Implementation-1.0-SNAPSHOT.jar"), tempMergingDir, entries)
+        //more automation of subproject stuff
+        clone(new File("MEIFabric/build/libs/minecraft_effekseer_implementation-1.0-SNAPSHOT.jar"), tempMergingDir, entries)
+        File outputFile = new File("build/" + name + "-Uniform.jar")
+        outputFile.createNewFile()
+        ZipOutputStream output = new ZipOutputStream(new FileOutputStream(outputFile))
+        //write all the collected files into a uniform jar
+        for (String entry : entries) {
+            output.putNextEntry(new ZipEntry(entry))
+            InputStream stream = new FileInputStream(tempMergingDir.path + "/" + entry)
+            if (!entry.endsWith("dll")) {
+                byte[] bytes = new byte[stream.available()]
+                stream.read(bytes)
+                output.write(bytes)
+            } else {
+                ByteArrayOutputStream stream1 = new ByteArrayOutputStream()
+                int b
+                while ((b = stream.read()) != -1) stream1.write(b)
+                output.write(stream1.toByteArray())
+                print(stream1.toByteArray().length)
+                stream1.close()
+                stream1.flush()
+            }
+            stream.close()
+            output.closeEntry()
+        }
+        output.close()
+        output.flush()
+        tempMergingDir.deleteOnExit()
+        tempMergingDir.deleteDir()
+    }
+
+}
+
+//copies all entries in the zip file it's being used on to the targeted folder
+void clone(File srcZip, File targ, ArrayList<String> entries) {
+    File file = srcZip
+    ZipFile file1 = new ZipFile(file)
+    File mergingFile = new File(targ.path)
+    mergingFile.mkdirs()
+    for (ZipEntry entry : file1.stream().iterator()) {
+        ZipEntry entry1 = entry
+        if (entry.isDirectory()) continue
+        if (!entries.contains(entry1.name)) entries.add(entry1.name)
+        InputStream stream = file1.getInputStream(entry1)
+        byte[] bytes = new byte[stream.available()]
+        stream.read(bytes)
+        stream.close()
+        File file2 = new File(targ.path + "/" + entry1.name);
+        print("|Copy File With Name: " + file2.name + "\n")
+        print("|Target: " + file2.path + "\n")
+        file2.getParentFile().mkdirs()
+        file2.createNewFile()
+        FileOutputStream stream1 = new FileOutputStream(file2)
+        stream1.write(bytes)
+        stream1.close()
+        file2.deleteOnExit()
+    }
+    file1.close()
+}

@@ -1,0 +1,8 @@
+{
+  "effect": "mc_effekseer_impl:test.efkefc",
+  "textures": {
+	"test2.png": "mc_effekseer_impl:test1.png",
+	"test3.png": "mc_effekseer_impl:test.png"
+  },
+  "maxSpriteCount": 10000
+}

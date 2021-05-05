@@ -1,14 +1,15 @@
 package com.tfc.minecraft_effekseer_implementation.common;
 
 import com.tfc.effekseer4j.EffekseerManager;
+import com.tfc.minecraft_effekseer_implementation.FinalizedReference;
 import com.tfc.minecraft_effekseer_implementation.common.api.EffekEmitter;
-import net.minecraft.client.Minecraft;
 
 import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class Effek implements Closeable {
 	private final LoaderIndependentIdentifier id;
@@ -19,6 +20,9 @@ public class Effek implements Closeable {
 	private final Map<LoaderIndependentIdentifier, EffekEmitter> effectsPresent = new HashMap<>();
 	private final Map<LoaderIndependentIdentifier, EffekEmitter> effectsFree = new HashMap<>();
 	
+	public static final FinalizedReference<Supplier<Integer>> widthGetter = new FinalizedReference<>();
+	public static final FinalizedReference<Supplier<Integer>> heightGetter = new FinalizedReference<>();
+	
 	public Effek(LoaderIndependentIdentifier id, Function<EffekseerManager, EffekEmitter> newEffect, int requestedMaxSprites, boolean srgb) {
 		this.id = id;
 		this.newEffect = newEffect;
@@ -27,7 +31,7 @@ public class Effek implements Closeable {
 	}
 	
 	public void draw(float[][] cameraMatrix, float[][] projectionMatrix, float delta) {
-		manager.setViewport(Minecraft.getInstance().getMainWindow().getWidth(), Minecraft.getInstance().getMainWindow().getHeight());
+		manager.setViewport(widthGetter.get().get(), heightGetter.get().get());
 		manager.setCameraMatrix(cameraMatrix);
 		manager.setProjectionMatrix(projectionMatrix);
 		manager.update(delta);

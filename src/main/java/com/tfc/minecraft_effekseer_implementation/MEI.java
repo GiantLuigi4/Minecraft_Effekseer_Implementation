@@ -1,62 +1,40 @@
 package com.tfc.minecraft_effekseer_implementation;
 
-import com.google.gson.internal.$Gson$Types;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.tfc.effekseer4j.Effekseer;
 import com.tfc.effekseer4j.EffekseerEffect;
-import com.tfc.effekseer4j.EffekseerManager;
-import com.tfc.effekseer4j.EffekseerParticleEmitter;
-import com.tfc.effekseer4j.enums.DeviceType;
 import com.tfc.effekseer4j.enums.TextureType;
 import com.tfc.minecraft_effekseer_implementation.common.Effek;
 import com.tfc.minecraft_effekseer_implementation.common.Effeks;
 import com.tfc.minecraft_effekseer_implementation.common.LoaderIndependentIdentifier;
-import com.tfc.minecraft_effekseer_implementation.common.api.EffekEmitter;
 import com.tfc.minecraft_effekseer_implementation.loader.EffekseerMCAssetLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderState;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.settings.GraphicsFanciness;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.opengl.GL11;
-
-import java.io.InputStream;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("mc_effekseer_impl")
 public class MEI {
 	private static final Logger LOGGER = LogManager.getLogger();
 	
-	// resource locations are very nice to have for registry type stuff, and I want the api to be 100% loader independent
-	static {
-		LoaderIndependentIdentifier.rlConstructor1.set(ResourceLocation::new);
-		LoaderIndependentIdentifier.rlConstructor2.set(ResourceLocation::new);
-	}
-	
 	public MEI() {
+		// resource locations are very nice to have for registry type stuff, and I want the api to be 100% loader independent
+		if (LoaderIndependentIdentifier.rlConstructor1.get() == null) {
+			LoaderIndependentIdentifier.rlConstructor1.set(ResourceLocation::new);
+			LoaderIndependentIdentifier.rlConstructor2.set(ResourceLocation::new);
+		}
+		if (Effek.widthGetter.get() == null) {
+			Effek.widthGetter.set(() -> Minecraft.getInstance().getMainWindow().getWidth());
+			Effek.heightGetter.set(() -> Minecraft.getInstance().getMainWindow().getHeight());
+		}
+		
 		Networking.init();
 		MinecraftForge.EVENT_BUS.addListener(this::onServerStartup);
 		if (!FMLEnvironment.dist.isClient()) return;
@@ -72,19 +50,19 @@ public class MEI {
 	private static long lastFrame = -1;
 	
 	private void renderWorldLast(RenderWorldLastEvent event) {
-		Effek effek = Effeks.get("mc_effekseer_impl:example");
-		EffekEmitter emitter = effek.getOrCreate("test:test");
-		emitter.setVisible(false);
-		for (Entity allEntity : Minecraft.getInstance().world.getAllEntities()) {
-			if (allEntity instanceof FishingBobberEntity) {
-				emitter.emitter.setVisibility(true);
-				emitter.emitter.move(
-						(float) MathHelper.lerp(Minecraft.getInstance().getRenderPartialTicks(), (float) allEntity.lastTickPosX, allEntity.getPosX()) - 0.5f,
-						(float) MathHelper.lerp(Minecraft.getInstance().getRenderPartialTicks(), (float) allEntity.lastTickPosY, allEntity.getPosY()) - 0.5f,
-						(float) MathHelper.lerp(Minecraft.getInstance().getRenderPartialTicks(), (float) allEntity.lastTickPosZ, allEntity.getPosZ()) - 0.5f
-				);
-			}
-		}
+//		Effek effek = Effeks.get("mc_effekseer_impl:example");
+//		EffekEmitter emitter = effek.getOrCreate("test:test");
+//		emitter.setVisible(false);
+//		for (Entity allEntity : Minecraft.getInstance().world.getAllEntities()) {
+//			if (allEntity instanceof FishingBobberEntity) {
+//				emitter.emitter.setVisibility(true);
+//				emitter.emitter.move(
+//						(float) MathHelper.lerp(Minecraft.getInstance().getRenderPartialTicks(), (float) allEntity.lastTickPosX, allEntity.getPosX()) - 0.5f,
+//						(float) MathHelper.lerp(Minecraft.getInstance().getRenderPartialTicks(), (float) allEntity.lastTickPosY, allEntity.getPosY()) - 0.5f,
+//						(float) MathHelper.lerp(Minecraft.getInstance().getRenderPartialTicks(), (float) allEntity.lastTickPosZ, allEntity.getPosZ()) - 0.5f
+//				);
+//			}
+//		}
 		float diff = 1;
 		if (lastFrame != -1) {
 			long currentTime = System.currentTimeMillis();
