@@ -16,8 +16,8 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 
 group = 'com.tfc'
-version = '1.0-SNAPSHOT'
-archivesBaseName = 'Minecraft_Effekseer_Implementation'
+version = ''
+archivesBaseName = 'MinecraftEffekseerImplementation'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
@@ -152,10 +152,10 @@ task uniformJar() {
         ArrayList<String> entries = new ArrayList<>()
         File tempMergingDir = new File(name + "-Uniform.jar-merging")
         print(project.buildDir.path + name + ".jar")
-        clone(new File("build/libs/Minecraft_Effekseer_Implementation-1.0-SNAPSHOT.jar"), tempMergingDir, entries)
+        clone(new File("build/libs/MinecraftEffekseerImplementation.jar"), tempMergingDir, entries)
         //more automation of subproject stuff
         clone(new File("MEIFabric/build/libs/minecraft_effekseer_implementation-1.0-SNAPSHOT.jar"), tempMergingDir, entries)
-        File outputFile = new File("build/" + name + "-Uniform.jar")
+        File outputFile = new File("build/" + name + "Uniform.jar")
         outputFile.createNewFile()
         ZipOutputStream output = new ZipOutputStream(new FileOutputStream(outputFile))
         //write all the collected files into a uniform jar

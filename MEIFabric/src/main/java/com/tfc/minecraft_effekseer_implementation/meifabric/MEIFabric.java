@@ -15,7 +15,7 @@ public class MEIFabric implements ModInitializer {
 			LoaderIndependentIdentifier.rlConstructor2.set(Identifier::new);
 		}
 	}
-	
+
 	public static float[][] matrixToArray(Matrix4f matrix4) {
 		MatrixAccessor matrix = (MatrixAccessor) (Object) matrix4;
 		return new float[][]{
