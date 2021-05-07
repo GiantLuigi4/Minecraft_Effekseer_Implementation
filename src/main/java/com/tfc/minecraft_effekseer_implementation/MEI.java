@@ -24,6 +24,8 @@ import org.apache.logging.log4j.Logger;
 public class MEI {
 	private static final Logger LOGGER = LogManager.getLogger();
 	
+	private static final Effeks mapHandler = Effeks.getMapHandler();
+	
 	public MEI() {
 		// resource locations are very nice to have for registry type stuff, and I want the api to be 100% loader independent
 		if (LoaderIndependentIdentifier.rlConstructor1.get() == null) {
@@ -50,19 +52,37 @@ public class MEI {
 	private static long lastFrame = -1;
 	
 	private void renderWorldLast(RenderWorldLastEvent event) {
+		mapHandler.setTimeSinceReload(Effeks.getTimeSinceReload() + 1);
 //		Effek effek = Effeks.get("mc_effekseer_impl:example");
-//		EffekEmitter emitter = effek.getOrCreate("test:test");
-//		emitter.setVisible(false);
-//		for (Entity allEntity : Minecraft.getInstance().world.getAllEntities()) {
-//			if (allEntity instanceof FishingBobberEntity) {
-//				emitter.emitter.setVisibility(true);
-//				emitter.emitter.move(
-//						(float) MathHelper.lerp(Minecraft.getInstance().getRenderPartialTicks(), (float) allEntity.lastTickPosX, allEntity.getPosX()) - 0.5f,
-//						(float) MathHelper.lerp(Minecraft.getInstance().getRenderPartialTicks(), (float) allEntity.lastTickPosY, allEntity.getPosY()) - 0.5f,
-//						(float) MathHelper.lerp(Minecraft.getInstance().getRenderPartialTicks(), (float) allEntity.lastTickPosZ, allEntity.getPosZ()) - 0.5f
-//				);
+//		if (effek != null) {
+//			EffekEmitter emitter = effek.getOrCreate("test:test");
+//			emitter.setVisible(false);
+//			for (Entity allEntity : Minecraft.getInstance().world.getAllEntities()) {
+//				if (allEntity instanceof FishingBobberEntity) {
+//					emitter.emitter.setVisibility(true);
+//					emitter.emitter.move(
+//							(float) MathHelper.lerp(Minecraft.getInstance().getRenderPartialTicks(), (float) allEntity.lastTickPosX, allEntity.getPosX()) - 0.5f,
+//							(float) MathHelper.lerp(Minecraft.getInstance().getRenderPartialTicks(), (float) allEntity.lastTickPosY, allEntity.getPosY()) - 0.5f,
+//							(float) MathHelper.lerp(Minecraft.getInstance().getRenderPartialTicks(), (float) allEntity.lastTickPosZ, allEntity.getPosZ()) - 0.5f
+//					);
+//				}
+//				if (allEntity instanceof ArmorStandEntity) {
+//					ResourceLocation location = new ResourceLocation("modid:"+allEntity.getUniqueID().toString());
+//					EffekEmitter emitter1 = effek.getOrCreate(location.toString());
+//					emitter1.setPosition(allEntity.getPosX(), allEntity.getPosY() + allEntity.getEyeHeight(), allEntity.getPosZ());
+//					if (!allEntity.isAlive()) effek.delete(emitter1);
+//				}
 //			}
 //		}
+//		effek = Effeks.get("example:aura");
+//		if (effek != null)
+//			for (int x = 0; x < 16; x++) {
+//				for (int y = 0; y < 16; y++) {
+//					EffekEmitter emitter = effek.getOrCreate("test:x" + x + "y" + y + "z0");
+//					if (emitter != null) emitter.setPosition(x, y + 16, 0);
+//					effek.delete(emitter);
+//				}
+//			}
 		float diff = 1;
 		if (lastFrame != -1) {
 			long currentTime = System.currentTimeMillis();

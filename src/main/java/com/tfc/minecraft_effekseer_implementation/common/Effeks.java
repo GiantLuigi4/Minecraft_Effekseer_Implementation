@@ -30,6 +30,17 @@ public class Effeks {
 		});
 	}
 	
+	private static boolean isReloading = false;
+	private static int timeSinceReload = 0;
+	
+	public void markUnsafe(boolean reloading) {
+		isReloading = reloading;
+	}
+	
+	public void setTimeSinceReload(int time) {
+		timeSinceReload = time;
+	}
+	
 	public void put(String name, Effek effect) {
 		effeks.put(new LoaderIndependentIdentifier(name), effect);
 	}
@@ -43,6 +54,7 @@ public class Effeks {
 	}
 	
 	public static Effek get(String s) {
+		if (isReloading || (timeSinceReload < 3)) return null;
 		return effeks.get(new LoaderIndependentIdentifier(s));
 	}
 	
@@ -51,8 +63,19 @@ public class Effeks {
 	}
 	
 	public static Effeks getMapHandler() {
-		Effeks handler = MapHandler;
-		MapHandler = null;
-		return handler;
+		if (!hasConstructedMapHandler) {
+			hasConstructedMapHandler = true;
+			return MapHandler;
+		} else if (MapHandler != null) {
+			Effeks handler = MapHandler;
+			MapHandler = null;
+			return handler;
+		} else {
+			throw new RuntimeException("no.");
+		}
+	}
+	
+	public static int getTimeSinceReload() {
+		return timeSinceReload;
 	}
 }

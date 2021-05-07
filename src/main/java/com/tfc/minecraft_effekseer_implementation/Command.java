@@ -10,14 +10,10 @@ import net.minecraftforge.fml.network.PacketDistributor;
 
 public class Command {
 	public static LiteralArgumentBuilder<CommandSource> construct() {
-		return Commands.literal("effek").requires(commandSource ->
-				{
-					System.out.println(commandSource.hasPermissionLevel(2));
-					return commandSource.hasPermissionLevel(2);
-				}
-		).then(Commands.argument("effek", StringArgumentType.string())
-				.then(Commands.argument("emitter", StringArgumentType.string())
-						.then(Commands.literal("true").executes((source) -> handle(source, source.getSource(), true)))
+		return Commands.literal("effek").requires(commandSource -> commandSource.hasPermissionLevel(2))
+				.then(Commands.argument("effek", StringArgumentType.string())
+						.then(Commands.argument("emitter", StringArgumentType.string())
+								.then(Commands.literal("true").executes((source) -> handle(source, source.getSource(), true)))
 								.then(Commands.literal("false").executes((source) -> handle(source, source.getSource(), false)))));
 	}
 	

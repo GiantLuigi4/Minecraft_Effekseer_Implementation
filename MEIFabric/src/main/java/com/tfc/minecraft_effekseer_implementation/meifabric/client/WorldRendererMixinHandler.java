@@ -14,7 +14,10 @@ import static com.tfc.minecraft_effekseer_implementation.meifabric.MEIFabric.mat
 public class WorldRendererMixinHandler {
 	private static long lastFrame = -1;
 	
+	private static final Effeks mapHandler = Effeks.getMapHandler();
+	
 	public static void onRenderParticles(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
+		mapHandler.setTimeSinceReload(Effeks.getTimeSinceReload() + 1);
 //		Effek efk = Effeks.get("example:aura");
 //		EffekEmitter emitter = efk.getOrCreate("test:test");
 //		emitter.setPosition(0, 10, 0);

@@ -15,7 +15,9 @@ public class Effek implements Closeable {
 	private final LoaderIndependentIdentifier id;
 	private final Function<EffekseerManager, EffekEmitter> newEffect;
 	
-	private final EffekseerManager manager = new EffekseerManager();
+	private boolean hasClosed = false;
+	
+	private EffekseerManager manager = new EffekseerManager();
 	
 	private final Map<LoaderIndependentIdentifier, EffekEmitter> effectsPresent = new HashMap<>();
 	private final Map<LoaderIndependentIdentifier, EffekEmitter> effectsFree = new HashMap<>();
@@ -31,6 +33,7 @@ public class Effek implements Closeable {
 	}
 	
 	public void draw(float[][] cameraMatrix, float[][] projectionMatrix, float delta) {
+		if (hasClosed) return;
 		manager.setViewport(widthGetter.get().get(), heightGetter.get().get());
 		manager.setCameraMatrix(cameraMatrix);
 		manager.setProjectionMatrix(projectionMatrix);
@@ -45,12 +48,17 @@ public class Effek implements Closeable {
 	
 	@Override
 	public void close() {
+		if (hasClosed) return;
+		hasClosed = true;
 		for (EffekEmitter value : effectsFree.values()) value.emitter.stop();
 		for (EffekEmitter value : effectsPresent.values()) value.emitter.stop();
-		manager.delete();
+		manager.stopEffects();
+//		manager.delete();
+		manager = null;
 	}
 	
 	public EffekEmitter getOrCreate(String name) {
+		if (hasClosed) return null;
 		LoaderIndependentIdentifier id = new LoaderIndependentIdentifier(name);
 		if (effectsPresent.containsKey(id)) return effectsPresent.get(new LoaderIndependentIdentifier(name));
 		else if (effectsFree.containsKey(id)) {
@@ -65,6 +73,7 @@ public class Effek implements Closeable {
 	}
 	
 	public void markFree(EffekEmitter emitter) {
+		if (hasClosed) return;
 		AtomicReference<LoaderIndependentIdentifier> idMove = new AtomicReference<>();
 		effectsPresent.forEach((id, emitter1)->{
 			if (idMove.get() != null) return;
@@ -79,6 +88,7 @@ public class Effek implements Closeable {
 	}
 	
 	public void delete(EffekEmitter emitter) {
+		if (hasClosed) return;
 		markFree(emitter);
 		emitter.emitter.stop();
 		AtomicReference<LoaderIndependentIdentifier> idMove = new AtomicReference<>();
