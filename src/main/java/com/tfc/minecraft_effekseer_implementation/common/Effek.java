@@ -1,13 +1,17 @@
 package com.tfc.minecraft_effekseer_implementation.common;
 
+import com.google.common.collect.ImmutableList;
 import com.tfc.effekseer4j.EffekseerManager;
 import com.tfc.minecraft_effekseer_implementation.FinalizedReference;
 import com.tfc.minecraft_effekseer_implementation.common.api.EffekEmitter;
 
 import java.io.Closeable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -25,6 +29,10 @@ public class Effek implements Closeable {
 	public static final FinalizedReference<Supplier<Integer>> widthGetter = new FinalizedReference<>();
 	public static final FinalizedReference<Supplier<Integer>> heightGetter = new FinalizedReference<>();
 	
+	private List<Runnable> preDraw = new ArrayList<>();
+	private List<Runnable> postDraw = new ArrayList<>();
+	private List<Consumer<Float>> preUpdate = new ArrayList<>();
+	
 	public Effek(LoaderIndependentIdentifier id, Function<EffekseerManager, EffekEmitter> newEffect, int requestedMaxSprites, boolean srgb) {
 		this.id = id;
 		this.newEffect = newEffect;
@@ -32,14 +40,34 @@ public class Effek implements Closeable {
 		manager.setupWorkerThreads(2);
 	}
 	
+	public void addPreupdateHandler(Consumer<Float> runnable) {
+		preUpdate.add(runnable);
+	}
+	
+	public void addPredrawHandler(Runnable runnable) {
+		preDraw.add(runnable);
+	}
+	
+	public void addPostdrawHandler(Runnable runnable) {
+		postDraw.add(runnable);
+	}
+	
+	public void lock() {
+		preDraw = ImmutableList.copyOf(preDraw);
+		postDraw = ImmutableList.copyOf(postDraw);
+		preUpdate = ImmutableList.copyOf(preUpdate);
+	}
+	
 	public void draw(float[][] cameraMatrix, float[][] projectionMatrix, float delta) {
 		if (hasClosed) return;
 		manager.setViewport(widthGetter.get().get(), heightGetter.get().get());
 		manager.setCameraMatrix(cameraMatrix);
 		manager.setProjectionMatrix(projectionMatrix);
+		for (Consumer<Float> runnable : preUpdate) runnable.accept(delta);
 		manager.update(delta);
-		//TODO: canvas shaders
+		for (Runnable runnable : preDraw) runnable.run();
 		manager.draw();
+		for (Runnable runnable : postDraw) runnable.run();
 	}
 	
 	public LoaderIndependentIdentifier getId() {

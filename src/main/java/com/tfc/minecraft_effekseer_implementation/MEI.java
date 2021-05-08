@@ -13,6 +13,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -36,6 +37,7 @@ public class MEI {
 			Effek.widthGetter.set(() -> Minecraft.getInstance().getMainWindow().getWidth());
 			Effek.heightGetter.set(() -> Minecraft.getInstance().getMainWindow().getHeight());
 		}
+		if (ModDetectionUtil.detector.get() == null) ModDetectionUtil.detector.set((name) -> ModList.get().isLoaded(name));
 		
 		Networking.init();
 		MinecraftForge.EVENT_BUS.addListener(this::onServerStartup);

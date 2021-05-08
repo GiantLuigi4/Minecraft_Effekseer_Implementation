@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.function.Consumer;
 
 public class EffekseerMCAssetLoader extends ReloadListener<Effek> {
 	private static final Gson gson = new GsonBuilder().setLenient().create();
@@ -35,6 +37,12 @@ public class EffekseerMCAssetLoader extends ReloadListener<Effek> {
 	@Override
 	protected Effek prepare(IResourceManager resourceManagerIn, IProfiler profilerIn) {
 		return null;
+	}
+	
+	private static final HashMap<String, Consumer<Effek>> effekConsumers = new HashMap<>();
+	
+	public static void addReloadListener(String effekName, Consumer<Effek> effekConsumer) {
+		effekConsumers.put(effekName, effekConsumer);
 	}
 	
 	@Override
@@ -175,6 +183,8 @@ public class EffekseerMCAssetLoader extends ReloadListener<Effek> {
 						object.has("maxSpriteCount") ? object.getAsJsonPrimitive("maxSpriteCount").getAsInt() : 100,
 						object.has("srgb") && object.getAsJsonPrimitive("srgb").getAsBoolean()
 				);
+				// allow mod devs to add custom things to their effeks, such as shaders
+				if (effekConsumers.containsKey(location.toString())) effekConsumers.get(location.toString()).accept(effek);
 				mapHandler.put(location.toString(), effek);
 			} catch (Throwable err) {
 				StringBuilder ex = new StringBuilder(err.getLocalizedMessage()).append("\n");
