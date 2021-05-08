@@ -154,9 +154,8 @@ task uniformJar() {
         ArrayList<String> entries = new ArrayList<>()
         File tempMergingDir = new File(name + "-Uniform.jar-merging")
         print(project.buildDir.path + name + ".jar")
-        clone(new File("build/libs/MinecraftEffekseerImplementation.jar"), tempMergingDir, entries)
-        //more automation of subproject stuff
         clone(new File("MEIFabric/build/libs/minecraft_effekseer_implementation-1.0-SNAPSHOT.jar"), tempMergingDir, entries)
+        clone(new File("build/libs/MinecraftEffekseerImplementation.jar"), tempMergingDir, entries)
         File outputFile = new File("build/" + name + "Uniform.jar")
         outputFile.createNewFile()
         ZipOutputStream output = new ZipOutputStream(new FileOutputStream(outputFile))
@@ -199,8 +198,19 @@ void clone(File srcZip, File targ, ArrayList<String> entries) {
         if (entry.isDirectory()) continue
         if (!entries.contains(entry1.name)) entries.add(entry1.name)
         InputStream stream = file1.getInputStream(entry1)
-        byte[] bytes = new byte[stream.available()]
-        stream.read(bytes)
+        byte[] bytes
+        if (!entry.toString().endsWith("dll")) {
+            bytes = new byte[stream.available()]
+            stream.read(bytes)
+        } else {
+            ByteArrayOutputStream stream1 = new ByteArrayOutputStream()
+            int b
+            while ((b = stream.read()) != -1) stream1.write(b)
+            bytes = stream1.toByteArray()
+            print(stream1.toByteArray().length)
+            stream1.close()
+            stream1.flush()
+        }
         stream.close()
         File file2 = new File(targ.path + "/" + entry1.name);
         print("|Copy File With Name: " + file2.name + "\n")
